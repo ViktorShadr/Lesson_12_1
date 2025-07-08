@@ -1,7 +1,12 @@
 import requests
+import os
+from dotenv import load_dotenv
+
 
 def get_github_users(github_users):
-    headers = {"Authorization": "Bearer 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"}
+    load_dotenv()
+    github_token = os.getenv('GITHUB_TOKEN')
+    headers = {"Authorization": f"Bearer {github_token}"}
 
     url = f"https://api.github.com/users/{github_users}"
     response = requests.get(url, headers=headers)

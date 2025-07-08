@@ -58,3 +58,4 @@ htmlcov/
 
 # Windows
 Thumbs.db
+/.env
