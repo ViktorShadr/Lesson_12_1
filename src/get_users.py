@@ -1,33 +1,54 @@
-from xml.etree.ElementTree import indent
-
+import json
 import requests
 import os
 from dotenv import load_dotenv
 
+load_dotenv()
+GITHUB_TOKEN = os.getenv('GITHUB_TOKEN') # не выдает ошибку если токена нет
+HEADERS = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
 
-def get_github_users(github_users):
-    load_dotenv()
-    github_token = os.getenv('GITHUB_TOKEN')
-    headers = {"Authorization": f"Bearer {github_token}"}
+def get_github_users(users):
+    results = []
+    for user in users:
+        status, user_data = get_user_info(user)
+        if not status:
+            continue
 
-    url_user = f"https://api.github.com/users/{github_users}"
-    url_repos = f"https://api.github.com/users/{github_users}/repos"
-    response_user = requests.get(url_user, headers=headers)
-    response_repos = requests.get(url_repos, headers=headers)
-    user_info = response_user.json()
-    user_repos_info = response_repos.json()
-    keys_to_select = ['login', 'public_repos', 'name']
-    list_info = {}
-    for key in keys_to_select:
-        if key in user_info:
-            list_info[key] = user_info[key]
+        status, repositories = get_user_repos(user)
+        if not status:
+            continue
 
-    names = [user['name'] for user in user_repos_info.values()]
+        result = {
+            'login': user_data['login'],
+            'public_repos': user_data['public_repos'],
+            'repositories': repositories
+        }
+        results.append(result)
+    return json.dumps(results, indent=4)
 
-    return list_info, names
+def get_user_info(user: str) -> tuple[bool, dict]:
+    url = f"https://api.github.com/users/{user}"
+    response = requests.get(url)
+    if response.status_code != 200:
+        return False, {}
+    return True, response.json()
+
+def get_user_repos(user: str) -> tuple[bool, list]:
+    repo_url = f"https://api.github.com/users/{user}/repos"
+    repo_response = requests.get(repo_url)
+    if repo_response.status_code != 200:
+        return False, []
+    return True, [repo['name'] for repo in repo_response.json()]
+
+
+list_users = ['ViktorShadr', 'BaixuanLi']
+
+github_users = get_github_users(list_users)
+
+print(github_users)
 
 
 
-users = 'ViktorShadr'
-result = get_github_users(users)
-print(result)
+# load_dotenv()
+#     github_token = os.getenv('GITHUB_TOKEN')
+#     headers = {"Authorization": f"Bearer {github_token}"}
