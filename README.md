@@ -42,3 +42,21 @@ cities
 `users = ['user1', 'user2', 'user3']
 result = get_github_users(users)
 print(result)`
+
+
+#### Задача 2 (API)
+Напишите функцию, которая будет получать курс валюты на текущую дату из API ЦБ РФ и возвращать его в формате JSON.
+
+Используйте сайт https://www.cbr-xml-daily.ru/daily_json.js.
+
+Пример вызова функции:
+
+rate = get_currency_rate("USD")
+print(rate)
+Результат:
+`
+{
+    "currency_code": "USD",
+    "rate": 72.7384
+}
+`
